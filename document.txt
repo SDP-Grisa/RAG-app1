@@ -1,0 +1,12 @@
+The chunking follows a semantic chunking approach to preserve meaning across sentence boundaries, avoiding fixed-size splits that can break context (e.g., mid-sentence).
+
+Sentence Splitting: Uses regex r'(?<=[.!?])\s+(?=[A-Z])' to split on sentence endings followed by capitalized words, ensuring clean breaks.
+Embedding & Grouping: Each sentence is embedded using a pre-trained model (see below). Chunks start with the first sentence. For subsequent sentences:
+Compute the average embedding of the current chunk.
+Calculate cosine similarity between this average and the new sentence's embedding.
+If similarity > 0.3 (threshold), append to current chunk; else, finalize the chunk and start a new one.
+
+Chunk Finalization: Each chunk's text is joined, and its embedding is the average of its sentences (stored as BLOB in DB).
+Rationale: This dynamic grouping ensures topical coherence (e.g., related sentences on "Python syntax" stay together), improving retrieval accuracy over naive methods. Threshold (0.3) balances chunk size (~2-5 sentences) for efficiency.
+
+Example: For a Python doc, sentences like "Python is high-level. It uses English-like syntax." would chunk together (high sim ~0.7), while unrelated ones (e.g., "Mumbai is a city.") split off.

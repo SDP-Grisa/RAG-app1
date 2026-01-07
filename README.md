@@ -13,12 +13,12 @@ The document is first split into individual sentences using regex (r'(?<=[.!?])\
 Sentences with high semantic similarity (based on cosine similarity of embeddings) are grouped together to form a single chunk. 
 This creates coherent chunks that preserve context while avoiding unrelated information.
 
-Embedding Choice:
+--> Embedding Choice:
 
 Model: all-MiniLM-L6-v2 (HF; 384-dim, ~22MB).
 Why: Fast (500 sent/sec CPU), strong semantic for English docs; 
 
-Confidence Logic:
+--> Confidence Logic:
 
 It is calculated using a combination of retrieval relevance and answer grounding.
 
@@ -32,16 +32,16 @@ Finally, the overall confidence is computed as a weighted sum:
 40% from grounding confidence
 
 
-Hallucination Prevention:
+--> Hallucination Prevention:
 
 Prompt: "Answer ONLY from context; else: 'I don’t know'." + retrieved chunks is given to llm.
 The model avoids hallucinations by answering strictly from retrieved documents and refusing to guess when evidence is missing.
 Additionally, the confidence score is increased only when the answer is clearly supported by the retrieved text.
 
 
-Limitations
+--> Limitations
 
-Lang/Domain: English tech/docs best; struggles with code/non-English.
-Chunking: Regex misses abbreviations; uneven for extreme doc lengths.
+Language/Domain: English tech/docs gives expected output but struggles with code/non-English.
+Chunking: Regex misses abbreviations and uneven for extreme doc lengths.
 Retrieval: No synonyms/hybrid search; O(n) queries.
 LLM: HF API limits; no fine-tune.

@@ -1,4 +1,3 @@
-# main.py (Updated for Single-Page UI with Sidebar)
 import os
 import re
 import numpy as np
@@ -15,28 +14,24 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 import uvicorn
 
-# Load environment variables
 load_dotenv()
 
-# Load model once
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 app = FastAPI(title="Semantic Chunking & QA App", version="1.0.0")
 
-# Mount static files (for CSS/JS if needed; optional)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Templates
 templates = Jinja2Templates(directory="templates")
 
 def cosine_similarity(a, b):
-    """Compute cosine similarity between two vectors."""
+    
     if np.linalg.norm(a) == 0 or np.linalg.norm(b) == 0:
         return 0.0
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 def process_document(file_content: bytes, filename: str) -> Dict[str, Any]:
-    """Process uploaded file into semantic chunks and store in DB."""
+    
     full_text = file_content.decode('utf-8').strip()
     document_name = filename
     
@@ -50,7 +45,6 @@ def process_document(file_content: bytes, filename: str) -> Dict[str, Any]:
     if not sentences:
         raise HTTPException(status_code=400, detail="No sentences found; nothing to process.")
     
-    # Embed
     sentence_embeddings = model.encode(sentences)
     
     # Chunk
@@ -76,7 +70,6 @@ def process_document(file_content: bytes, filename: str) -> Dict[str, Any]:
             current_chunk_sentences = [sentences[i]]
             current_chunk_embeds = [sentence_embeddings[i]]
     
-    # Last chunk
     if current_chunk_sentences:
         current_chunk_text = ' '.join(current_chunk_sentences)
         avg_embedding = np.mean(current_chunk_embeds, axis=0).astype(np.float32)
@@ -100,7 +93,7 @@ def process_document(file_content: bytes, filename: str) -> Dict[str, Any]:
     conn.commit()
     conn.close()
     
-    # Fetch results
+    # database connection
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
     c.execute('SELECT chunk_id, chunk_text FROM chunks WHERE document_name = ?', (document_name,))
@@ -123,7 +116,7 @@ def process_document(file_content: bytes, filename: str) -> Dict[str, Any]:
     }
 
 def find_similar_chunks(query_text: str, top_k: int = 3, min_sim: float = 0.5) -> tuple:
-    """Retrieve top_k similar chunks from DB using cosine similarity (with min_sim threshold)."""
+    
     if not query_text.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
     
@@ -154,7 +147,7 @@ def find_similar_chunks(query_text: str, top_k: int = 3, min_sim: float = 0.5) -
     return top_matches, len(top_matches)
 
 def query_llm(prompt: str, model_name: str = "meta-llama/Llama-3.1-8B-Instruct:fastest") -> str:
-    """Query Hugging Face API with the prompt."""
+    
     API_URL = "https://router.huggingface.co/v1/chat/completions"
     hf_token = os.getenv('HF_TOKEN')
     if not hf_token:
@@ -190,12 +183,12 @@ class AskResponse(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    """Single-page app with sidebar navigation."""
+    
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/ingest")
 async def ingest_document(file: UploadFile = File(...)):
-    """Ingest a .txt document: semantically chunk, embed, and store in DB."""
+    
     if not file.filename.endswith('.txt'):
         raise HTTPException(status_code=400, detail="Only .txt files supported.")
     
@@ -208,9 +201,8 @@ async def ingest_document(file: UploadFile = File(...)):
 
 @app.post("/ask", response_model=AskResponse)
 async def ask_question(request: AskRequest):
-    """Ask a question: Retrieve relevant chunks, generate answer with LLM, return with confidence and evidence."""
+    
     try:
-        # Retrieve
         top_chunks, num_found = find_similar_chunks(request.question, request.top_k, request.min_similarity)
         
         if not top_chunks:
@@ -221,7 +213,7 @@ async def ask_question(request: AskRequest):
                 evidence=[]
             )
         
-        # Build context and prompt
+        # Build context and prompt to prevent hallucination
         context = "\n".join([f"- {chunk[2]}" for chunk in top_chunks])
         prompt = f"""You are a helpful assistant. Answer the question based ONLY on the provided context below. 
 Do not use any external knowledge. If the answer is not in the context, respond exactly: "I don’t know based on the provided context."
@@ -229,7 +221,6 @@ Context:{context}
 Question: {request.question}
 Answer:"""
         
-        # Generate
         answer = query_llm(prompt, request.model)
         
         # Confidence and evidence
@@ -265,7 +256,7 @@ async def health_check():
         "db_exists": os.path.exists(db_path),
         "db_chunks_count": 0,
         "hf_token_set": bool(hf_token),
-        "model_loaded": True  # Since it's global
+        "model_loaded": True 
     }
     
     if os.path.exists(db_path):

@@ -1,4 +1,3 @@
-<!-- templates/index.html (Single-Page with Sidebar) -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,49 +13,116 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             height: 100vh;
-            background: #f4f4f4;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
         }
 
         .sidebar {
-            width: 250px;
-            background: #333;
-            color: white;
-            padding: 20px;
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px 20px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
         }
 
         .sidebar h2 {
-            color: #fff;
-            margin-bottom: 20px;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
         }
 
         .sidebar a {
-            color: #ccc;
+            color: #555;
             text-decoration: none;
-            padding: 10px;
-            border-radius: 5px;
-            transition: background 0.3s;
+            padding: 15px 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .sidebar a:hover,
+        .sidebar a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: #667eea;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateX(5px);
+        }
+
         .sidebar a.active {
-            background: #555;
-            color: #fff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .sidebar a.active::before {
+            transform: scaleY(1);
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
         }
 
         .main {
             flex: 1;
-            padding: 20px;
+            padding: 40px;
             overflow-y: auto;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .section {
             display: none;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .section.active {
@@ -65,95 +131,298 @@
 
         .container {
             background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
             min-height: 80vh;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
         }
 
         h1 {
             color: #333;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #777;
+            margin-bottom: 30px;
+            font-size: 16px;
         }
 
         form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            max-width: 500px;
+            gap: 20px;
+            max-width: 600px;
         }
 
-        input,
-        button {
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="file"],
+        input[type="text"],
+        input[type="number"] {
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
             font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
         }
 
         button {
-            background: #333;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         button:hover {
-            background: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        button:active {
+            transform: translateY(0);
         }
 
         .result {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 5px;
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            animation: slideDown 0.4s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .success {
-            background: #d4edda;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
             color: #155724;
-            border-left: 4px solid #28a745;
+            border-left: 5px solid #28a745;
         }
 
         .error {
-            background: #f8d7da;
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
             color: #721c24;
-            border-left: 4px solid #dc3545;
+            border-left: 5px solid #dc3545;
+        }
+
+        .loading {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            color: #0c5460;
+            border-left: 5px solid #17a2b8;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         ul {
             list-style: none;
             padding: 0;
+            margin-top: 20px;
         }
 
         li {
-            margin-bottom: 10px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 5px;
+            margin-bottom: 15px;
+            padding: 18px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        li:hover {
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
         }
 
         .evidence li {
-            border-left: 3px solid #007bff;
+            border-left-color: #007bff;
         }
 
-        #health {
+        #healthResult pre {
             white-space: pre-wrap;
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
             background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        strong {
+            color: #667eea;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.8);
         }
     </style>
 </head>
 
 <body>
     <nav class="sidebar">
-        <h2>Navigation</h2>
-        <a href="#" onclick="showSection('home')" class="active">Home</a>
-        <a href="#" onclick="showSection('upload')">Upload & Ingest</a>
-        <a href="#" onclick="showSection('ask')">Ask Question</a>
-        <a href="#" onclick="showSection('health')">Health Check</a>
+        <h2>🧠 SemanticQA</h2>
+        <a href="#" onclick="showSection('home')" class="active">
+            <span class="icon">🏠</span> Home
+        </a>
+        <a href="#" onclick="showSection('upload')">
+            <span class="icon">📤</span> Upload & Ingest
+        </a>
+        <a href="#" onclick="showSection('ask')">
+            <span class="icon">💬</span> Ask Question
+        </a>
+        <a href="#" onclick="showSection('health')">
+            <span class="icon">🏥</span> Health Check
+        </a>
     </nav>
 
     <main class="main">
@@ -161,9 +430,38 @@
         <div id="home" class="section active">
             <div class="container">
                 <h1>Welcome to Semantic Chunking & QA App</h1>
-                <p>This app lets you ingest .txt documents (semantic chunking + embeddings), ask questions (RAG with
-                    LLM), and check system health.</p>
-                <p>Use the sidebar to navigate. Start by uploading a document!</p>
+                <p class="subtitle">Harness the power of AI to analyze documents and get intelligent answers</p>
+
+                <div class="card-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h3>Smart Ingestion</h3>
+                        <p>Upload text documents and let our semantic chunking algorithm break them into meaningful
+                            segments with embeddings</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h3>AI-Powered QA</h3>
+                        <p>Ask questions and get accurate answers powered by RAG (Retrieval Augmented Generation) with
+                            LLM</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Real-time Analysis</h3>
+                        <p>Get instant responses with evidence-based answers and confidence scores for every query</p>
+                    </div>
+                </div>
+
+                <div
+                    style="margin-top: 40px; padding: 30px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border-radius: 15px;">
+                    <h3 style="color: #333; margin-bottom: 15px;">🚀 Getting Started</h3>
+                    <ol style="color: #666; line-height: 2; margin-left: 20px;">
+                        <li><strong>Upload</strong> a .txt document using the Upload & Ingest section</li>
+                        <li><strong>Wait</strong> for the semantic processing to complete</li>
+                        <li><strong>Ask</strong> questions about your document in the Ask Question section</li>
+                        <li><strong>Review</strong> answers with confidence scores and evidence</li>
+                    </ol>
+                </div>
             </div>
         </div>
 
@@ -171,12 +469,18 @@
         <div id="upload" class="section">
             <div class="container">
                 <h1>Upload & Ingest Document</h1>
-                <p>Upload a .txt file to semantically chunk and store in the database via POST /ingest.</p>
+                <p class="subtitle">Upload a .txt file to semantically chunk and store in the database</p>
+
                 <form id="uploadForm" enctype="multipart/form-data">
-                    <input type="file" name="file" accept=".txt" required>
-                    <button type="submit">Ingest File</button>
+                    <div class="form-group">
+                        <label>📄 Select File <span class="badge">.txt only</span></label>
+                        <input type="file" name="file" accept=".txt" required>
+                    </div>
+                    <button type="submit">
+                        <span style="position: relative; z-index: 1;">🚀 Ingest File</span>
+                    </button>
                 </form>
-                <div id="uploadResult" class="result"></div>
+                <div id="uploadResult"></div>
             </div>
         </div>
 
@@ -184,18 +488,35 @@
         <div id="ask" class="section">
             <div class="container">
                 <h1>Ask a Question</h1>
-                <p>Ask a question via POST /ask (retrieves chunks, generates answer with LLM).</p>
+                <p class="subtitle">Query your documents using natural language and get AI-powered answers</p>
+
                 <form id="askForm">
-                    <input type="text" name="question" placeholder="e.g., Python is what type of language?" required>
-                    <label>Top-k Chunks: <input type="number" name="top_k" value="3" min="1" max="5"
-                            style="width: 60px;"></label>
-                    <label>Min Similarity: <input type="number" name="min_similarity" value="0.5" min="0" max="1"
-                            step="0.1" style="width: 80px;"></label>
-                    <label>Model: <input type="text" name="model" value="meta-llama/Llama-3.1-8B-Instruct:fastest"
-                            style="width: 300px;"></label>
-                    <button type="submit">Ask</button>
+                    <div class="form-group">
+                        <label>❓ Your Question</label>
+                        <input type="text" name="question" placeholder="e.g., What is Python used for?" required>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="form-group">
+                            <label>🔢 Top-k Chunks</label>
+                            <input type="number" name="top_k" value="3" min="1" max="10">
+                        </div>
+                        <div class="form-group">
+                            <label>📊 Min Similarity</label>
+                            <input type="number" name="min_similarity" value="0.5" min="0" max="1" step="0.1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🤖 Model</label>
+                        <input type="text" name="model" value="meta-llama/Llama-3.1-8B-Instruct:fastest">
+                    </div>
+
+                    <button type="submit">
+                        <span style="position: relative; z-index: 1;">💡 Get Answer</span>
+                    </button>
                 </form>
-                <div id="askResult" class="result"></div>
+                <div id="askResult"></div>
             </div>
         </div>
 
@@ -203,50 +524,65 @@
         <div id="health" class="section">
             <div class="container">
                 <h1>Health Check</h1>
-                <p>System diagnostics via GET /health.</p>
-                <button onclick="loadHealth()">Check Health</button>
-                <div id="healthResult" class="result"></div>
+                <p class="subtitle">Monitor system diagnostics and performance metrics</p>
+
+                <button onclick="loadHealth()">
+                    <span style="position: relative; z-index: 1;">🔍 Check System Health</span>
+                </button>
+                <div id="healthResult"></div>
             </div>
         </div>
     </main>
 
     <script>
         function showSection(sectionId) {
-            // Hide all sections
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            // Show selected
             document.getElementById(sectionId).classList.add('active');
-            // Update sidebar active
             document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-            event.target.classList.add('active');
+            event.target.closest('a').classList.add('active');
         }
 
-        // Upload Form
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const resultDiv = document.getElementById('uploadResult');
-            resultDiv.innerHTML = '<p>Processing...</p>';
+            resultDiv.className = 'result loading';
+            resultDiv.innerHTML = '<div class="spinner"></div><p>Processing your document...</p>';
+
             try {
                 const response = await fetch('/ingest', { method: 'POST', body: formData });
                 const data = await response.json();
+
                 if (response.ok) {
-                    resultDiv.innerHTML = `<div class="success"><h3>${data.message}</h3><p>Chunks: ${data.num_chunks}</p><ul>${data.chunks.map(c => `<li><strong>${c.id}</strong>: ${c.text_preview}</li>`).join('')}</ul></div>`;
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h3>✅ ${data.message}</h3>
+                        <p><strong>Chunks Created:</strong> <span class="badge">${data.num_chunks}</span></p>
+                        <ul>${data.chunks.map(c => `
+                            <li>
+                                <strong>${c.id}</strong><br>
+                                <span style="color: #666;">${c.text_preview}</span>
+                            </li>
+                        `).join('')}</ul>
+                    `;
                 } else {
-                    resultDiv.innerHTML = `<div class="error"><p>Error: ${data.detail}</p></div>`;
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<p>❌ <strong>Error:</strong> ${data.detail}</p>`;
                 }
             } catch (err) {
-                resultDiv.innerHTML = `<div class="error"><p>Network Error: ${err.message}</p></div>`;
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<p>❌ <strong>Network Error:</strong> ${err.message}</p>`;
             }
         });
 
-        // Ask Form
         document.getElementById('askForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData);
             const resultDiv = document.getElementById('askResult');
-            resultDiv.innerHTML = '<p>Querying...</p>';
+            resultDiv.className = 'result loading';
+            resultDiv.innerHTML = '<div class="spinner"></div><p>Searching for the best answer...</p>';
+
             try {
                 const response = await fetch('/ask', {
                     method: 'POST',
@@ -254,40 +590,60 @@
                     body: JSON.stringify(data)
                 });
                 const resData = await response.json();
+
                 if (response.ok) {
-                    let html = `<div class="success"><h3>Answer: ${resData.answer}</h3>`;
-                    html += `<p><strong>Confidence:</strong> ${resData.confidence.toFixed(3)}</p>`;
+                    resultDiv.className = 'result success';
+                    let html = `
+                        <h3>💡 ${resData.answer}</h3>
+                        <p style="margin-top: 15px;">
+                            <strong>Confidence Score:</strong> 
+                            <span class="badge">${(resData.confidence * 100).toFixed(1)}%</span>
+                        </p>
+                    `;
+
                     if (resData.evidence.length > 0) {
-                        html += '<div class="evidence"><h4>Evidence:</h4><ul>';
+                        html += '<div class="evidence"><h4 style="margin-top: 25px; color: #333;">📚 Evidence:</h4><ul>';
                         resData.evidence.forEach(ev => {
-                            html += `<li><strong>${ev.document} - ${ev.chunk_id}</strong><br>${ev.text}</li>`;
+                            html += `
+                                <li>
+                                    <strong style="color: #007bff;">${ev.document} - ${ev.chunk_id}</strong><br>
+                                    <span style="color: #555; margin-top: 8px; display: block;">${ev.text}</span>
+                                </li>
+                            `;
                         });
                         html += '</ul></div>';
                     }
-                    html += '</div>';
+
                     resultDiv.innerHTML = html;
                 } else {
-                    resultDiv.innerHTML = `<div class="error"><p>Error: ${resData.detail}</p></div>`;
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<p>❌ <strong>Error:</strong> ${resData.detail}</p>`;
                 }
             } catch (err) {
-                resultDiv.innerHTML = `<div class="error"><p>Network Error: ${err.message}</p></div>`;
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<p>❌ <strong>Network Error:</strong> ${err.message}</p>`;
             }
         });
 
-        // Health Check
         async function loadHealth() {
             const resultDiv = document.getElementById('healthResult');
-            resultDiv.innerHTML = '<p>Loading...</p>';
+            resultDiv.className = 'result loading';
+            resultDiv.innerHTML = '<div class="spinner"></div><p>Checking system health...</p>';
+
             try {
                 const response = await fetch('/health');
                 const data = await response.json();
+
                 if (response.ok) {
-                    resultDiv.innerHTML = `<div class="success"><pre id="health">${JSON.stringify(data, null, 2)}</pre></div>`;
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
                 } else {
-                    resultDiv.innerHTML = `<div class="error"><p>Error: ${data.detail}</p></div>`;
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<p>❌ <strong>Error:</strong> ${data.detail}</p>`;
                 }
             } catch (err) {
-                resultDiv.innerHTML = `<div class="error"><p>Network Error: ${err.message}</p></div>`;
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<p>❌ <strong>Network Error:</strong> ${err.message}</p>`;
             }
         }
     </script>

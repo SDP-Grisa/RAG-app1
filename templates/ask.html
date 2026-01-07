@@ -1,97 +1,428 @@
-<!-- templates/ask.html -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ask a Question</title>
+    <title>Ask a Question - SemanticQA</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .container {
             background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            animation: slideUp 0.6s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #777;
+            font-size: 16px;
+            line-height: 1.6;
         }
 
         form {
             display: flex;
             flex-direction: column;
+            gap: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
             gap: 10px;
         }
 
-        input,
-        select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+        label {
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            padding: 16px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
         }
 
         button {
-            padding: 10px;
-            background: #333;
+            padding: 18px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 400px;
+            height: 400px;
         }
 
         button:hover {
-            background: #333;
+            transform: tr   anslateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 30px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .back-link:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateX(-5px);
         }
 
         .result {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
+            margin-top: 40px;
+            padding: 30px;
+            border-radius: 15px;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .success {
-            background: #d4edda;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
             color: #155724;
+            border-left: 5px solid #28a745;
         }
 
         .error {
-            background: #f8d7da;
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
             color: #721c24;
+            border-left: 5px solid #dc3545;
+        }
+
+        .loading {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            color: #0c5460;
+            border-left: 5px solid #17a2b8;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .spinner {
+            width: 28px;
+            height: 28px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .result h3 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #155724;
+        }
+
+        .confidence-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: white;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .evidence {
-            margin-top: 10px;
+            margin-top: 30px;
+        }
+
+        .evidence h4 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .evidence ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .evidence li {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid #007bff;
+        }
+
+        .evidence li:hover {
+            transform: translateX(10px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .evidence strong {
+            color: #007bff;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .evidence-text {
+            color: #555;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .icon {
+            font-size: 20px;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .tip-box h4 {
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tip-box p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Ask a Question</h1>
-        <p>Ask a question via POST /ask (retrieves chunks, generates answer with LLM).</p>
+        <div class="header">
+            <h1>💬 Ask a Question</h1>
+            <p class="subtitle">Query your documents using natural language and get AI-powered answers with
+                evidence-based responses</p>
+        </div>
+
         <form id="askForm">
-            <input type="text" name="question" placeholder="e.g., Python is what type of language?" required>
-            <label>Top-k Chunks: <input type="number" name="top_k" value="3" min="1" max="5"></label>
-            <label>Min Similarity: <input type="number" name="min_similarity" value="0.5" min="0" max="1"
-                    step="0.1"></label>
-            <label>Model: <input type="text" name="model" value="meta-llama/Llama-3.1-8B-Instruct:fastest"></label>
-            <button type="submit">Ask</button>
+            <div class="form-group">
+                <label>
+                    <span class="icon">❓</span>
+                    Your Question
+                </label>
+                <input type="text" name="question" placeholder="e.g., What is Python used for in data science?"
+                    required>
+            </div>
+
+            <div class="input-grid">
+                <div class="form-group">
+                    <label>
+                        <span class="icon">🔢</span>
+                        Top-k Chunks
+                    </label>
+                    <input type="number" name="top_k" value="3" min="1" max="10">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <span class="icon">📊</span>
+                        Min Similarity
+                    </label>
+                    <input type="number" name="min_similarity" value="0.5" min="0" max="1" step="0.1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <span class="icon">🤖</span>
+                    Model
+                    <span class="badge">LLM</span>
+                </label>
+                <input type="text" name="model" value="meta-llama/Llama-3.1-8B-Instruct:fastest">
+            </div>
+
+            <button type="submit">
+                <span style="position: relative; z-index: 1;">💡 Get AI Answer</span>
+            </button>
         </form>
-        <a href="/">Back to Home</a>
+
+        <div class="tip-box">
+            <h4>💡 Pro Tips</h4>
+            <p><strong>Top-k Chunks:</strong> Higher values retrieve more context but may include less relevant
+                information. Start with 3-5 for best results.</p>
+            <p style="margin-top: 8px;"><strong>Min Similarity:</strong> Higher thresholds (0.7-0.9) ensure only highly
+                relevant chunks are used. Lower values (0.3-0.5) cast a wider net.</p>
+        </div>
+
+        <a href="/" class="back-link">
+            <span>←</span>
+            Back to Home
+        </a>
+
         <div id="result"></div>
     </div>
+
     <script>
         document.getElementById('askForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData);
             const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = '<p>Querying...</p>';
+
+            resultDiv.className = 'result loading';
+            resultDiv.innerHTML = '<div class="spinner"></div><p style="font-weight: 600;">Searching for the best answer...</p>';
+
             try {
                 const response = await fetch('/ask', {
                     method: 'POST',
@@ -99,23 +430,55 @@
                     body: JSON.stringify(data)
                 });
                 const resData = await response.json();
+
                 if (response.ok) {
-                    let html = `<div class="success"><h3>Answer: ${resData.answer}</h3>`;
-                    html += `<p><strong>Confidence:</strong> ${resData.confidence.toFixed(3)}</p>`;
+                    resultDiv.className = 'result success';
+                    let html = `<h3>💡 ${resData.answer}</h3>`;
+
+                    const confidencePercent = (resData.confidence * 100).toFixed(1);
+                    const confidenceEmoji = confidencePercent >= 80 ? '🎯' : confidencePercent >= 60 ? '✅' : '⚠️';
+
+                    html += `
+                        <div class="confidence-badge">
+                            <span>${confidenceEmoji}</span>
+                            <strong>Confidence Score:</strong> 
+                            <span style="color: #667eea;">${confidencePercent}%</span>
+                        </div>
+                    `;
+
                     if (resData.evidence.length > 0) {
-                        html += '<div class="evidence"><h4>Evidence:</h4><ul>';
-                        resData.evidence.forEach(ev => {
-                            html += `<li><strong>${ev.document} - ${ev.chunk_id}</strong><br>${ev.text}</li>`;
+                        html += '<div class="evidence">';
+                        html += '<h4>📚 Evidence & Sources</h4>';
+                        html += '<ul>';
+                        resData.evidence.forEach((ev, idx) => {
+                            html += `
+                                <li>
+                                    <strong>📄 Source ${idx + 1}: ${ev.document} - ${ev.chunk_id}</strong>
+                                    <div class="evidence-text">${ev.text}</div>
+                                </li>
+                            `;
                         });
                         html += '</ul></div>';
+                    } else {
+                        html += '<p style="margin-top: 20px; color: #856404; background: #fff3cd; padding: 15px; border-radius: 10px;">⚠️ No evidence chunks were retrieved. Try adjusting your similarity threshold or uploading more relevant documents.</p>';
                     }
-                    html += '</div>';
+
                     resultDiv.innerHTML = html;
                 } else {
-                    resultDiv.innerHTML = `<div class="error"><p>Error: ${resData.detail}</p></div>`;
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+                        <h3>❌ Error Occurred</h3>
+                        <p style="margin-top: 15px;"><strong>Details:</strong> ${resData.detail}</p>
+                        <p style="margin-top: 10px; font-size: 14px;">Please try again or adjust your query parameters.</p>
+                    `;
                 }
             } catch (err) {
-                resultDiv.innerHTML = `<div class="error"><p>Network Error: ${err.message}</p></div>`;
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Network Error</h3>
+                    <p style="margin-top: 15px;"><strong>Message:</strong> ${err.message}</p>
+                    <p style="margin-top: 10px; font-size: 14px;">Please check your connection and try again.</p>
+                `;
             }
         });
     </script>

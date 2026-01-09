@@ -3,6 +3,7 @@ import re
 import numpy as np
 import sqlite3
 import json
+import gc  # For garbage collection to free memory
 from typing import List, Dict, Any
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, status, Request
 from fastapi.responses import JSONResponse, HTMLResponse
@@ -13,10 +14,9 @@ import requests
 from dotenv import load_dotenv
 from pydantic import BaseModel
 import uvicorn
+from functools import lru_cache  # For lazy model caching
 
 load_dotenv()
-
-model = SentenceTransformer('all-MiniLM-L6-v2')
 
 app = FastAPI(title="Semantic Chunking & QA App", version="1.0.0")
 
@@ -24,14 +24,18 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
 
+# Lazy-load the model: Cache once, load on first use, explicit CPU to save RAM
+@lru_cache(maxsize=1)
+def get_model():
+    return SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
+
 def cosine_similarity(a, b):
-    
     if np.linalg.norm(a) == 0 or np.linalg.norm(b) == 0:
         return 0.0
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 def process_document(file_content: bytes, filename: str) -> Dict[str, Any]:
-    
+    model = get_model()  # Lazy load
     full_text = file_content.decode('utf-8').strip()
     document_name = filename
     
@@ -45,7 +49,8 @@ def process_document(file_content: bytes, filename: str) -> Dict[str, Any]:
     if not sentences:
         raise HTTPException(status_code=400, detail="No sentences found; nothing to process.")
     
-    sentence_embeddings = model.encode(sentences)
+    # Embed (this is the heavy part - limit batch if needed)
+    sentence_embeddings = model.encode(sentences, batch_size=32, show_progress_bar=False)  # Smaller batch, no progress bar to save minor RAM
     
     # Chunk
     similarity_threshold = 0.3
@@ -93,7 +98,7 @@ def process_document(file_content: bytes, filename: str) -> Dict[str, Any]:
     conn.commit()
     conn.close()
     
-    # database connection
+    # Fetch results
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
     c.execute('SELECT chunk_id, chunk_text FROM chunks WHERE document_name = ?', (document_name,))
@@ -108,6 +113,10 @@ def process_document(file_content: bytes, filename: str) -> Dict[str, Any]:
         for row in results
     ]
     
+    # Free memory after heavy ops
+    del sentence_embeddings
+    gc.collect()
+    
     return {
         "document": document_name,
         "num_chunks": len(chunks),
@@ -116,11 +125,12 @@ def process_document(file_content: bytes, filename: str) -> Dict[str, Any]:
     }
 
 def find_similar_chunks(query_text: str, top_k: int = 3, min_sim: float = 0.5) -> tuple:
+    model = get_model()  # Lazy load
     
     if not query_text.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
     
-    query_emb = model.encode([query_text])[0]
+    query_emb = model.encode([query_text], batch_size=1, show_progress_bar=False)[0]
     
     db_path = 'chunks.db'
     if not os.path.exists(db_path):
@@ -144,10 +154,14 @@ def find_similar_chunks(query_text: str, top_k: int = 3, min_sim: float = 0.5) -
     
     # Sort by similarity descending
     top_matches = sorted(similarities, key=lambda x: x[0], reverse=True)[:top_k]
+    
+    # Free memory
+    del query_emb
+    gc.collect()
+    
     return top_matches, len(top_matches)
 
 def query_llm(prompt: str, model_name: str = "meta-llama/Llama-3.1-8B-Instruct:fastest") -> str:
-    
     API_URL = "https://router.huggingface.co/v1/chat/completions"
     hf_token = os.getenv('HF_TOKEN')
     if not hf_token:
@@ -183,12 +197,10 @@ class AskResponse(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/ingest")
 async def ingest_document(file: UploadFile = File(...)):
-    
     if not file.filename.endswith('.txt'):
         raise HTTPException(status_code=400, detail="Only .txt files supported.")
     
@@ -201,7 +213,6 @@ async def ingest_document(file: UploadFile = File(...)):
 
 @app.post("/ask", response_model=AskResponse)
 async def ask_question(request: AskRequest):
-    
     try:
         top_chunks, num_found = find_similar_chunks(request.question, request.top_k, request.min_similarity)
         
@@ -233,6 +244,9 @@ Answer:"""
             }
             for chunk in top_chunks
         ]
+        
+        # Free memory after processing
+        gc.collect()
         
         return AskResponse(
             question=request.question,
@@ -280,4 +294,5 @@ async def health_check():
     return diagnostics
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))  # Render injects PORT env var
+    uvicorn.run(app, host="0.0.0.0", port=port)
